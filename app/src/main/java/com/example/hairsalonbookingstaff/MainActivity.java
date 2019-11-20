@@ -1,30 +1,26 @@
 package com.example.hairsalonbookingstaff;
 
+import android.content.Intent;
+import android.os.Bundle;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Intent;
-import android.os.Bundle;
-
 import com.example.hairsalonbookingstaff.Adapter.MyStateAdapter;
-import com.example.hairsalonbookingstaff.Adapter.MyTimeSlotAdapter;
 import com.example.hairsalonbookingstaff.Common.Common;
 import com.example.hairsalonbookingstaff.Common.MySocket;
 import com.example.hairsalonbookingstaff.Common.SharedPrefManager;
 import com.example.hairsalonbookingstaff.Common.SpaceItemDecoration;
 import com.example.hairsalonbookingstaff.Model.City;
 import com.github.nkzawa.emitter.Emitter;
-import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-
 public class MainActivity extends AppCompatActivity {
     RecyclerView recycler_state;
     MyStateAdapter myStateAdapter;

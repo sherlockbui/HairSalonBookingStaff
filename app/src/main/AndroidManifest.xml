@@ -14,7 +14,15 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".NotificationActivity"></activity>
+        <activity android:name=".DoneServiceActivity"></activity>
+
+        <service android:name=".Service.MyService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <activity android:name=".NotificationActivity" />
         <activity android:name=".StaffHomeActivity" />
         <activity android:name=".SalonListActivity" />
         <activity android:name=".MainActivity">

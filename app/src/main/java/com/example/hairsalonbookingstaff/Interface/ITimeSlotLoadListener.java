@@ -1,12 +1,12 @@
 package com.example.hairsalonbookingstaff.Interface;
 
 
-import com.example.hairsalonbookingstaff.Model.TimeSlot;
+import com.example.hairsalonbookingstaff.Model.BookingInfomation;
 
 import java.util.List;
 
 public interface ITimeSlotLoadListener {
-    void onTimeSlotLoadSuccess(List<TimeSlot> timeSlotList);
+    void onTimeSlotLoadSuccess(List<BookingInfomation> timeSlotList);
     void onTimeSlotLoadFailed(String message);
     void onTimeSlotLoadEmpty();
 }

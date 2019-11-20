@@ -1,24 +1,36 @@
 package com.example.hairsalonbookingstaff.Common;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
+
+import androidx.core.app.NotificationCompat;
+
 import com.example.hairsalonbookingstaff.Model.Barber;
-import com.example.hairsalonbookingstaff.Model.MyNotification;
+import com.example.hairsalonbookingstaff.Model.BookingInfomation;
 import com.example.hairsalonbookingstaff.Model.Salon;
+import com.example.hairsalonbookingstaff.R;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.List;
-
 
 public class Common {
     public static final Object DISABLE_TAG = "DISABLE_TAG";
     public static final int TIME_SLOT_TOTAL = 20;
+    public static final String TITLE_KEY = "TITLE_KEY";
+    public static final String CONTENT_KEY = "CONTENT_KEY";
+    public static final String SERVICES_ADDED = "SERVICES_ADDED";
+    public static final String MONEY_SIGN = "$ ";
+    public static final String SHOPPING_LIST = "SHOPPING_LIST";
+    public static double DEFAULT_PRICE = 30;
     public static String state_name ="";
-
     public static Salon selectedSalon;
     public static Barber currentBarber;
-    public static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd_MM_yyyy");
     public static Calendar bookingDate = Calendar.getInstance();
-    public static List<MyNotification> listNotification;
+    public static BookingInfomation currentBookingInfomation;
 
     public static String convertTimeSlotToString(int slot) {
         switch (slot) {
@@ -61,9 +73,41 @@ public class Common {
             case 18:
                 return "18:00 - 18:30";
             case 19:
-                return "18:30 - 19:30";
+                return "18:30 - 19:00";
             default:
                 return "Closed";
         }
+    }
+
+    public static void showNotification(Context context, int notification_id, String title, String content, Intent intent) {
+        PendingIntent pendingIntent = null;
+        if (intent != null)
+            pendingIntent = PendingIntent.getActivity(context, notification_id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        String NOTIFICATION_CHANEL_ID = "barberbooking_chanel_01";
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANEL_ID,
+                    "BARBER_BOOKING_STAFF_APP",
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            notificationChannel.setDescription("Staff app");
+            notificationChannel.enableLights(true);
+            notificationChannel.enableVibration(true);
+
+            notificationManager.createNotificationChannel(notificationChannel);
+        }
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, NOTIFICATION_CHANEL_ID);
+        builder.setContentTitle(title).
+                setContentText(content).
+                setAutoCancel(false).
+                setSmallIcon(R.drawable.ic_launcher_background);
+        if (pendingIntent != null)
+            builder.setContentIntent(pendingIntent);
+        Notification notification = builder.build();
+        notificationManager.notify(notification_id, notification);
+    }
+
+    public static String formatShoppingItemName(String name) {
+        return name.length() > 13 ? new StringBuilder(name.substring(0, 10)).append("...").toString() : name;
+
     }
 }

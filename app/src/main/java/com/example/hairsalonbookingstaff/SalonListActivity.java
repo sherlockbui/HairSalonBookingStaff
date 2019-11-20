@@ -1,11 +1,11 @@
 package com.example.hairsalonbookingstaff;
 
+import android.os.Bundle;
+import android.widget.TextView;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import android.os.Bundle;
-import android.widget.TextView;
 
 import com.example.hairsalonbookingstaff.Adapter.MySalonAdapter;
 import com.example.hairsalonbookingstaff.Common.Common;
@@ -13,7 +13,6 @@ import com.example.hairsalonbookingstaff.Common.MySocket;
 import com.example.hairsalonbookingstaff.Common.SpaceItemDecoration;
 import com.example.hairsalonbookingstaff.Model.Salon;
 import com.github.nkzawa.emitter.Emitter;
-
 import com.github.nkzawa.socketio.client.Socket;
 
 import org.json.JSONException;

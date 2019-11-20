@@ -1,9 +1,7 @@
 package com.example.hairsalonbookingstaff;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -26,11 +24,16 @@ import com.example.hairsalonbookingstaff.Common.MySocket;
 import com.example.hairsalonbookingstaff.Common.SharedPrefManager;
 import com.example.hairsalonbookingstaff.Common.SpaceItemDecoration;
 import com.example.hairsalonbookingstaff.Interface.ITimeSlotLoadListener;
-import com.example.hairsalonbookingstaff.Model.MyNotification;
-import com.example.hairsalonbookingstaff.Model.TimeSlot;
+import com.example.hairsalonbookingstaff.Model.BookingInfomation;
+import com.example.hairsalonbookingstaff.Model.MyToken;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.Socket;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
+import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,6 +42,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+
 import devs.mulham.horizontalcalendar.HorizontalCalendar;
 import devs.mulham.horizontalcalendar.HorizontalCalendarView;
 import devs.mulham.horizontalcalendar.utils.HorizontalCalendarListener;
@@ -49,8 +53,7 @@ public class StaffHomeActivity extends AppCompatActivity implements ITimeSlotLoa
     ActionBarDrawerToggle actionBarDrawerToggle;
     RecyclerView recycler_time_slot;
     HorizontalCalendarView calendarView;
-    List<TimeSlot> timeSlotList;
-    List<MyNotification> notificationList;
+    List<BookingInfomation> timeSlotList;
     SimpleDateFormat simpleDateFormat;
     ITimeSlotLoadListener iTimeSlotLoadListener;
     TextView txt_notification_badge;
@@ -58,37 +61,25 @@ public class StaffHomeActivity extends AppCompatActivity implements ITimeSlotLoa
 
     Socket mSocket = MySocket.getmSocket();
 
-     Emitter.Listener getUnreadNotification = new Emitter.Listener() {
+    Emitter.Listener countNotification = new Emitter.Listener() {
         @Override
-        public void call(Object... args) {
-            Log.d("BBB", "call: getUnreadNotification");
-            final JSONObject object = (JSONObject) args[0];
-            if (object != null) {
-                try {
-                    MyNotification myNotification = new MyNotification();
-                    myNotification.set_id(object.getString("_id"));
-                    myNotification.setTitle(object.getString("title"));
-                    myNotification.setContent(object.getString("content"));
-                    myNotification.setRead(object.getBoolean("read"));
-                    notificationList.add(myNotification);
-                    Common.listNotification.add(myNotification);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                if (notificationList.size() > 0) {
-                    txt_notification_badge.setText(String.valueOf(notificationList.size()));
-                }
-            }else {
-                notificationList.clear();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        loadAvailableTimeSlotOfBarber(Common.currentBarber
-                                .getId(), simpleDateFormat.format(Common.bookingDate.getTime()));
-                        Log.d("AAA", "date: "+ simpleDateFormat.format(Common.bookingDate.getTime()));
+        public void call(final Object... args) {
+            final String count = args[0].toString();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (count != null) {
+                        loadAvailableTimeSlotOfBarber(Common.currentBarber.getId(), simpleDateFormat.format(Common.bookingDate.getTime()));
+                        if (!count.equalsIgnoreCase("0")) {
+                            txt_notification_badge.setVisibility(View.VISIBLE);
+                            txt_notification_badge.setText(count);
+                        }
+                    } else {
+                        txt_notification_badge.setVisibility(View.INVISIBLE);
                     }
-                });
-            }
+                }
+            });
+
 
         }
     };
@@ -99,6 +90,22 @@ public class StaffHomeActivity extends AppCompatActivity implements ITimeSlotLoa
         mSocket.connect();
         iTimeSlotLoadListener = this;
         simpleDateFormat = new SimpleDateFormat("dd_MM_yyyy");
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            return;
+                        }
+                        String token = task.getResult().getToken();
+                        MyToken myToken = new MyToken();
+                        myToken.setToken(token);
+                        myToken.setIdbarber(Common.currentBarber.getId());
+                        String jsonToken = new Gson().toJson(myToken);
+                        mSocket.emit("updateToken", jsonToken);
+                        Log.d("token", "onComplete: " + token);
+                    }
+                });
         setContentView(R.layout.activity_staff_home);
         initView();
     }
@@ -111,8 +118,7 @@ public class StaffHomeActivity extends AppCompatActivity implements ITimeSlotLoa
     }
 
     private void initView() {
-        Common.listNotification = new ArrayList<>();
-        notificationList = new ArrayList<>();
+
         drawerLayout = findViewById(R.id.activity_main);
         navigationView = findViewById(R.id.navigation_view);
         actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
@@ -196,15 +202,8 @@ public class StaffHomeActivity extends AppCompatActivity implements ITimeSlotLoa
     }
 
     private void loadNotification() {
-        mSocket.emit("getUnreadNotification", Common.currentBarber.getId());
-        mSocket.on("getUnreadNotification",getUnreadNotification);
-//        textView.setVisibility(View.INVISIBLE);
-//        mSocket.on("getUnreadNotification",getUnreadNotification);
-
-
-//        List<MyNotification> myNotifications = new ArrayList<>();
-//        LoadBadge task = new LoadBadge(this, myNotifications, textView);
-//        task.execute();
+        mSocket.emit("countNotification", Common.currentBarber.getId());
+        mSocket.on("countNotification", countNotification);
     }
 
     @Override
@@ -223,7 +222,7 @@ public class StaffHomeActivity extends AppCompatActivity implements ITimeSlotLoa
     }
 
     @Override
-    public void onTimeSlotLoadSuccess(final List<TimeSlot> timeSlotList) {
+    public void onTimeSlotLoadSuccess(final List<BookingInfomation> timeSlotList) {
         final MyTimeSlotAdapter adapter = new MyTimeSlotAdapter(this, timeSlotList);
         recycler_time_slot.setAdapter(adapter);
         Emitter.Listener getTimeBooking = new Emitter.Listener() {
@@ -237,7 +236,19 @@ public class StaffHomeActivity extends AppCompatActivity implements ITimeSlotLoa
                             if (object == null) {
                                 iTimeSlotLoadListener.onTimeSlotLoadEmpty();
                             } else {
-                                timeSlotList.add(new TimeSlot(object.getString("slot")));
+                                BookingInfomation bookingInfomation = new BookingInfomation();
+                                bookingInfomation.set_id(object.getString("_id"));
+                                bookingInfomation.setCustomerName(object.getString("customerName"));
+                                bookingInfomation.setCustomerPhone(object.getString("customerPhone"));
+                                bookingInfomation.setDate(object.getString("date"));
+                                bookingInfomation.setBarberId(object.getString("barberId"));
+                                bookingInfomation.setBarberName(object.getString("barberName"));
+                                bookingInfomation.setSalonId(object.getString("salonId"));
+                                bookingInfomation.setSalonName(object.getString("salonName"));
+                                bookingInfomation.setSalonAddress(object.getString("salonAddress"));
+                                bookingInfomation.setSlot(object.getString("slot"));
+                                bookingInfomation.setDone(object.getBoolean("done"));
+                                timeSlotList.add(bookingInfomation);
                                 adapter.notifyDataSetChanged();
                                 Log.d("AAA", "run: " + object.getString("slot"));
                             }
@@ -260,53 +271,5 @@ public class StaffHomeActivity extends AppCompatActivity implements ITimeSlotLoa
         MyTimeSlotAdapter adapter = new MyTimeSlotAdapter(this);
         recycler_time_slot.setAdapter(adapter);
     }
-
-//    private class LoadBadge extends AsyncTask<Void, Integer, List<MyNotification>> {
-//        Context context;
-//        List<MyNotification> myNotifications;
-//        TextView textView;
-//
-//        public LoadBadge(Context context, List<MyNotification> myNotifications, TextView textView) {
-//            this.context = context;
-//            this.myNotifications = myNotifications;
-//            this.textView = textView;
-//        }
-//        @Override
-//        protected List<MyNotification> doInBackground(final Void... voids){
-//            mSocket.emit("getUnreadNotification", Common.currentBarber.getId());
-//            mSocket.on("getUnreadNotification", new Emitter.Listener() {
-//                @Override
-//                public void call(Object... args) {
-//                    final JSONObject object = (JSONObject) args[0];
-//                    if (object != null) {
-//                        try {
-//                            MyNotification myNotification = new MyNotification();
-//                            myNotification.set_id(object.getString("_id"));
-//                            myNotification.setTitle(object.getString("title"));
-//                            myNotification.setContent(object.getString("content"));
-//                            myNotification.setRead(object.getBoolean("read"));
-//                            myNotifications.add(myNotification);
-//                        } catch (JSONException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-//
-//                }
-//            });
-//            return myNotifications;
-//        }
-//        @Override
-//        protected void onPostExecute(List<MyNotification> myNotifications) {
-//            if (myNotifications.size() > 0) {
-//                textView.setVisibility(View.VISIBLE);
-//                textView.setText(String.valueOf(myNotifications.size()));
-//
-//            } else {
-//                textView.setVisibility(View.INVISIBLE);
-//            }
-//            super.onPostExecute(myNotifications);
-//        }
-//    }
-
 }
 

@@ -1,34 +1,46 @@
 package com.example.hairsalonbookingstaff.Adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.hairsalonbookingstaff.Common.Common;
+import com.example.hairsalonbookingstaff.Common.MySocket;
+import com.example.hairsalonbookingstaff.DoneServiceActivity;
 import com.example.hairsalonbookingstaff.Interface.IRecyclerItemSelectedListener;
-import com.example.hairsalonbookingstaff.Model.TimeSlot;
+import com.example.hairsalonbookingstaff.Model.BookingInfomation;
 import com.example.hairsalonbookingstaff.R;
+import com.github.nkzawa.emitter.Emitter;
+import com.github.nkzawa.socketio.client.Socket;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MyTimeSlotAdapter extends RecyclerView.Adapter<MyTimeSlotAdapter.MyViewHolder> {
     Context context;
-    List<TimeSlot> timeSlotList;
+    List<BookingInfomation> timeSlotList;
     List<CardView> cardViewList;
+    Socket mSocket = MySocket.getmSocket();
 
 
     public MyTimeSlotAdapter(Context context) {
+        mSocket.connect();
         this.context = context;
         this.timeSlotList = new ArrayList<>();
         this.cardViewList = new ArrayList<>();
     }
 
-    public MyTimeSlotAdapter(Context context, List<TimeSlot> timeSlotList) {
+    public MyTimeSlotAdapter(Context context, List<BookingInfomation> timeSlotList) {
         this.context = context;
         this.timeSlotList =  timeSlotList;
         if(this.timeSlotList==null){
@@ -45,7 +57,7 @@ public class MyTimeSlotAdapter extends RecyclerView.Adapter<MyTimeSlotAdapter.My
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final MyViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final MyViewHolder holder, final int position) {
         holder.txt_time_slot.setText(new StringBuilder(Common.convertTimeSlotToString(position)).toString());
         if(timeSlotList.size()==0){
             holder.card_time_slot.setCardBackgroundColor(context.getResources().getColor(android.R.color.white));
@@ -54,40 +66,67 @@ public class MyTimeSlotAdapter extends RecyclerView.Adapter<MyTimeSlotAdapter.My
             holder.txt_time_slot.setTextColor(context.getResources().getColor(android.R.color.black));
 
         }else {
-            for(TimeSlot slotValue: timeSlotList){
-                int slot = Integer.parseInt(slotValue.getSlot());
+            for (BookingInfomation slotValue : timeSlotList) {
+                final int slot = Integer.parseInt(slotValue.getSlot());
                 if(slot== position){
                     holder.card_time_slot.setTag(Common.DISABLE_TAG);
-                    holder.card_time_slot.setClickable(false);
                     holder.card_time_slot.setCardBackgroundColor(context.getResources().getColor(android.R.color.darker_gray));
                     holder.txt_time_slot_description.setText("Full");
                     holder.txt_time_slot_description.setTextColor(context.getResources().getColor(android.R.color.white));
                     holder.txt_time_slot.setTextColor(context.getResources().getColor(android.R.color.white));
+                    holder.itemView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(final View v) {
+                            mSocket.emit("getBookInfomation", timeSlotList.get(position).get_id()).on("getBookInfomation", new Emitter.Listener() {
+                                @Override
+                                public void call(Object... args) {
+                                    JSONObject object = (JSONObject) args[0];
+                                    if (object != null) {
+                                        try {
+                                            Common.currentBookingInfomation = new BookingInfomation();
+                                            Common.currentBookingInfomation.set_id(object.getString("_id"));
+                                            Common.currentBookingInfomation.setCustomerName(object.getString("customerName"));
+                                            Common.currentBookingInfomation.setCustomerPhone(object.getString("customerPhone"));
+                                            Common.currentBookingInfomation.setDate(object.getString("date"));
+                                            Common.currentBookingInfomation.setBarberId(object.getString("barberId"));
+                                            Common.currentBookingInfomation.setBarberName(object.getString("barberName"));
+                                            Common.currentBookingInfomation.setSalonId(object.getString("salonId"));
+                                            Common.currentBookingInfomation.setSalonName(object.getString("salonName"));
+                                            Common.currentBookingInfomation.setSalonAddress(object.getString("salonAddress"));
+                                            Common.currentBookingInfomation.setSlot(object.getString("slot"));
+                                            Common.currentBookingInfomation.setDone(object.getBoolean("done"));
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }
 
+                            });
+                            context.startActivity(new Intent(context, DoneServiceActivity.class));
+                        }
+                    });
                 }
             }
         }
-
-
-
         if(!cardViewList.contains(holder.card_time_slot)){
             cardViewList.add(holder.card_time_slot);
-        }
+            holder.setiRecyclerItemSelectedListener(new IRecyclerItemSelectedListener() {
+                @Override
+                public void onItemSelectedListener(View view, int position) {
+                    for (CardView cardView : cardViewList) {
+                        if (cardView.getTag() == null) {
+                            cardView.setCardBackgroundColor(context.getResources().getColor(android.R.color.white));
+                        }
 
-        holder.setiRecyclerItemSelectedListener(new IRecyclerItemSelectedListener() {
-            @Override
-            public void onItemSelectedListener(View view, int position) {
-                for(CardView cardView: cardViewList){
-                    if(cardView.getTag()==null){
-                        cardView.setCardBackgroundColor(context.getResources().getColor(android.R.color.white));
                     }
+                    holder.card_time_slot.setCardBackgroundColor(context.getResources().getColor(android.R.color.holo_orange_dark));
+
 
                 }
-                holder.card_time_slot.setCardBackgroundColor(context.getResources().getColor(android.R.color.holo_orange_dark));
+            });
+        }
 
 
-            }
-        });
 
     }
 

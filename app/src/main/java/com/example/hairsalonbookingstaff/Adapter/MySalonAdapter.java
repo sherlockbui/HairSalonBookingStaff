@@ -5,15 +5,16 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.hairsalonbookingstaff.Common.Common;
 import com.example.hairsalonbookingstaff.Common.CustomLoginDialog;
 import com.example.hairsalonbookingstaff.Common.MySocket;
@@ -26,8 +27,10 @@ import com.example.hairsalonbookingstaff.R;
 import com.example.hairsalonbookingstaff.StaffHomeActivity;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.Socket;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -141,6 +144,7 @@ public class MySalonAdapter extends RecyclerView.Adapter<MySalonAdapter.MyViewHo
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
+
 
                         Intent intent = new Intent(context, StaffHomeActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
