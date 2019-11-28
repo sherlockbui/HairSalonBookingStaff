@@ -1,13 +1,32 @@
 package com.example.hairsalonbookingstaff.Model;
 
 
+import java.util.List;
+
 public class BookingInfomation {
-    private String _id, customerName, customerPhone, date, barberId, barberName, salonId, salonName, salonAddress, slot;
+    int slot;
+    List<CartItem> cartItemList;
     private boolean done;
+    private String _id, customerName, customerPhone, date, barberId, barberName, salonId, salonName, salonAddress;
 
     public BookingInfomation() {
     }
 
+    public List<CartItem> getCartItemList() {
+        return cartItemList;
+    }
+
+    public void setCartItemList(List<CartItem> cartItemList) {
+        this.cartItemList = cartItemList;
+    }
+
+    public int getSlot() {
+        return slot;
+    }
+
+    public void setSlot(int slot) {
+        this.slot = slot;
+    }
 
     public String get_id() {
         return _id;
@@ -87,14 +106,6 @@ public class BookingInfomation {
 
     public void setSalonAddress(String salonAddress) {
         this.salonAddress = salonAddress;
-    }
-
-    public String getSlot() {
-        return slot;
-    }
-
-    public void setSlot(String slot) {
-        this.slot = slot;
     }
 
 }

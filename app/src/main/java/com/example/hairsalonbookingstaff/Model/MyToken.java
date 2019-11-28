@@ -1,10 +1,23 @@
 package com.example.hairsalonbookingstaff.Model;
 
 public class MyToken {
-    private String token, idbarber;
+    private String token, phoneCustomber, idbarber;
 
 
     public MyToken() {
+    }
+
+    public MyToken(String token, String phoneCustomber) {
+        this.token = token;
+        this.phoneCustomber = phoneCustomber;
+    }
+
+    public String getPhoneCustomber() {
+        return phoneCustomber;
+    }
+
+    public void setPhoneCustomber(String phoneCustomber) {
+        this.phoneCustomber = phoneCustomber;
     }
 
     public String getToken() {

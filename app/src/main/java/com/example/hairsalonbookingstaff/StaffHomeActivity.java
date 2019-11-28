@@ -163,8 +163,6 @@ public class StaffHomeActivity extends AppCompatActivity implements ITimeSlotLoa
                 }
             }
         });
-        loadAvailableTimeSlotOfBarber(Common.currentBarber
-                .getId(), simpleDateFormat.format(date.getTime()));
     }
 
     private void logOut() {
@@ -246,7 +244,7 @@ public class StaffHomeActivity extends AppCompatActivity implements ITimeSlotLoa
                                 bookingInfomation.setSalonId(object.getString("salonId"));
                                 bookingInfomation.setSalonName(object.getString("salonName"));
                                 bookingInfomation.setSalonAddress(object.getString("salonAddress"));
-                                bookingInfomation.setSlot(object.getString("slot"));
+                                bookingInfomation.setSlot(object.getInt("slot"));
                                 bookingInfomation.setDone(object.getBoolean("done"));
                                 timeSlotList.add(bookingInfomation);
                                 adapter.notifyDataSetChanged();

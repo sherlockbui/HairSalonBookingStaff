@@ -12,6 +12,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.example.hairsalonbookingstaff.Model.Barber;
 import com.example.hairsalonbookingstaff.Model.BookingInfomation;
+import com.example.hairsalonbookingstaff.Model.MyToken;
 import com.example.hairsalonbookingstaff.Model.Salon;
 import com.example.hairsalonbookingstaff.R;
 
@@ -24,13 +25,14 @@ public class Common {
     public static final String CONTENT_KEY = "CONTENT_KEY";
     public static final String SERVICES_ADDED = "SERVICES_ADDED";
     public static final String MONEY_SIGN = "$ ";
-    public static final String SHOPPING_LIST = "SHOPPING_LIST";
+    public static final String ID_BARBER_KEY = "ID_BARBER_KEY";
     public static double DEFAULT_PRICE = 30;
     public static String state_name ="";
     public static Salon selectedSalon;
     public static Barber currentBarber;
     public static Calendar bookingDate = Calendar.getInstance();
-    public static BookingInfomation currentBookingInfomation;
+    public static BookingInfomation currentBookingInfomation = new BookingInfomation();
+    public static MyToken currentToken;
 
     public static String convertTimeSlotToString(int slot) {
         switch (slot) {

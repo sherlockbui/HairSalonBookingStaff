@@ -1,7 +1,6 @@
 package com.example.hairsalonbookingstaff;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -19,6 +18,7 @@ import com.example.hairsalonbookingstaff.Fragment.ShopingFragment;
 import com.example.hairsalonbookingstaff.Fragment.TotalPriceFragment;
 import com.example.hairsalonbookingstaff.Interface.IOnShoppingItemSelected;
 import com.example.hairsalonbookingstaff.Model.BarberServices;
+import com.example.hairsalonbookingstaff.Model.CartItem;
 import com.example.hairsalonbookingstaff.Model.ShoppingItem;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.Socket;
@@ -40,7 +40,7 @@ public class DoneServiceActivity extends AppCompatActivity implements IOnShoppin
     ImageView img_add_shopping;
     Button btn_finish;
     List<String> nameService;
-    List<ShoppingItem> shoppingItems = new ArrayList<>();
+    //    List<ShoppingItem> shoppingItems = new ArrayList<>();
     List<BarberServices> barberServices = new ArrayList<>();
     HashSet<BarberServices> serviceAdded = new HashSet<>();
     LayoutInflater inflater;
@@ -109,13 +109,14 @@ public class DoneServiceActivity extends AppCompatActivity implements IOnShoppin
                 }
             }
         });
+        loadExtraItems();
         btn_finish.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 TotalPriceFragment fragment = TotalPriceFragment.getInstance();
                 Bundle bundle = new Bundle();
                 bundle.putString(Common.SERVICES_ADDED, new Gson().toJson(serviceAdded));
-                bundle.putString(Common.SHOPPING_LIST, new Gson().toJson(shoppingItems));
+//                bundle.putString(Common.SHOPPING_LIST, new Gson().toJson(shoppingItems));
                 fragment.setArguments(bundle);
                 fragment.show(getSupportFragmentManager(), "Price");
             }
@@ -129,20 +130,65 @@ public class DoneServiceActivity extends AppCompatActivity implements IOnShoppin
 
     @Override
     public void onShoppingItemSelected(ShoppingItem shoppingItem) {
-        shoppingItems.add(shoppingItem);
-        Log.d("AAA", "onShoppingItemSelected: " + shoppingItems.size());
-        final Chip item = (Chip) inflater.inflate(R.layout.chip_item, null);
-        item.setText(shoppingItem.getName());
-        item.setTag(shoppingItems.indexOf(shoppingItem));
-        edt_services.setText("");
-        item.setOnCloseIconClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                chip_group_shopping.removeView(v);
-                shoppingItems.remove(item.getTag());
+//        shoppingItems.add(shoppingItem);
+        CartItem cartItem = new CartItem();
+        cartItem.setProductId(shoppingItem.getId());
+        cartItem.setProductImage(shoppingItem.getImage());
+        cartItem.setProductName(shoppingItem.getName());
+        cartItem.setProductPrice(Long.valueOf(shoppingItem.getPrice()));
+        cartItem.setProductQuantity(1);
+        cartItem.setUserPhone(Common.currentBookingInfomation.getCustomerPhone());
+
+        if (Common.currentBookingInfomation.getCartItemList() == null) {
+            Common.currentBookingInfomation.setCartItemList(new ArrayList<CartItem>());
+        }
+        boolean flag = false;
+        for (int i = 0; i < Common.currentBookingInfomation.getCartItemList().size(); i++) {
+            if (Common.currentBookingInfomation.getCartItemList().get(i).getProductName().equals(shoppingItem.getName())) {
+                flag = true;
+                CartItem itemUpdate = Common.currentBookingInfomation.getCartItemList().get(i);
+                itemUpdate.setProductQuantity(itemUpdate.getProductQuantity() + 1);
+                Common.currentBookingInfomation.getCartItemList().set(i, itemUpdate);
+
             }
-        });
-        chip_group_shopping.addView(item);
+        }
+        if (!flag) {
+            Common.currentBookingInfomation.getCartItemList().add(cartItem);
+            final Chip item = (Chip) inflater.inflate(R.layout.chip_item, null);
+            item.setText(cartItem.getProductName());
+            item.setTag(Common.currentBookingInfomation.getCartItemList().indexOf(cartItem));
+            item.setOnCloseIconClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    chip_group_shopping.removeView(v);
+                    Common.currentBookingInfomation.getCartItemList().remove(item.getTag());
+                }
+            });
+            chip_group_shopping.addView(item);
+        } else {
+            chip_group_shopping.removeAllViews();
+            loadExtraItems();
+        }
     }
+
+    private void loadExtraItems() {
+        if (Common.currentBookingInfomation.getCartItemList() != null) {
+            for (CartItem cartItem : Common.currentBookingInfomation.getCartItemList()) {
+                final Chip item = (Chip) inflater.inflate(R.layout.chip_item, null);
+                item.setText(new StringBuilder(cartItem.getProductName()).append(" x").append(cartItem.getProductQuantity()));
+                item.setTag(Common.currentBookingInfomation.getCartItemList().indexOf(cartItem));
+                item.setOnCloseIconClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        chip_group_shopping.removeView(v);
+                        Common.currentBookingInfomation.getCartItemList().remove(item.getTag());
+                    }
+                });
+                chip_group_shopping.addView(item);
+            }
+        }
+
+    }
+
 
 }
