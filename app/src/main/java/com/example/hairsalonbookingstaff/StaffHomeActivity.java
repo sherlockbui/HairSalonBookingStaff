@@ -56,8 +56,9 @@ public class StaffHomeActivity extends AppCompatActivity implements ITimeSlotLoa
     List<BookingInfomation> timeSlotList;
     SimpleDateFormat simpleDateFormat;
     ITimeSlotLoadListener iTimeSlotLoadListener;
-    TextView txt_notification_badge;
+    TextView txt_notification_badge, txt_name_barber;
     HorizontalCalendar horizontalCalendar;
+
 
     Socket mSocket = MySocket.getmSocket();
 
@@ -134,6 +135,9 @@ public class StaffHomeActivity extends AppCompatActivity implements ITimeSlotLoa
                 return true;
             }
         });
+        View headerView = navigationView.getHeaderView(0);
+        txt_name_barber = headerView.findViewById(R.id.txt_name_barber);
+        txt_name_barber.setText(Common.currentBarber.getName());
         calendarView = findViewById(R.id.calendarView);
         recycler_time_slot = findViewById(R.id.recycler_time_slot);
         recycler_time_slot.setHasFixedSize(true);

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
+    android:background="@color/colorBackground"
     android:gravity="center"
     android:layout_height="wrap_content">
     <ImageView
@@ -9,9 +10,27 @@
         android:layout_marginVertical="15dp"
         android:background="@drawable/logo"/>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nhân Viên: "
+            android:textSize="16sp"
+            android:textStyle="bold"></TextView>
 
-
+        <TextView
+            android:id="@+id/txt_name_barber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAllCaps="true"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+    </LinearLayout>
 
 
 </LinearLayout>
