@@ -15,7 +15,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".DoneServiceActivity"></activity>
+        <activity
+            android:name=".AdminActivity"
+            android:label="@string/title_activity_admin"></activity>
+        <activity android:name=".DoneServiceActivity" />
 
         <service android:name=".Service.MyService">
             <intent-filter>

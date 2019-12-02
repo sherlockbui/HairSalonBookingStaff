@@ -46,7 +46,6 @@ public class CustomLoginDialog {
         if(!TextUtils.isEmpty(title)){
             txt_title.setText(title);
             txt_title.setVisibility(View.VISIBLE);
-
         }
         btn_login.setText(positiveText);
         btn_cancel.setText(negativeText);

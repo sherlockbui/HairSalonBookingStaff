@@ -19,6 +19,7 @@ import com.example.hairsalonbookingstaff.SalonListActivity;
 import java.util.List;
 
 public class MyStateAdapter extends RecyclerView.Adapter<MyStateAdapter.MyViewHolder> {
+
     Context context;
     List<City> cityList;
 
@@ -65,7 +66,6 @@ public class MyStateAdapter extends RecyclerView.Adapter<MyStateAdapter.MyViewHo
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
-
             txt_state_name = itemView.findViewById(R.id.txt_state_name);
             itemView.setOnClickListener(this);
         }
