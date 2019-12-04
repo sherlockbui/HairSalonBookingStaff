@@ -18,7 +18,6 @@ import com.example.hairsalonbookingstaff.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
-
 public class MyShoppingItemAdapter extends RecyclerView.Adapter<MyShoppingItemAdapter.MyViewHolder> {
     Context context;
     List<ShoppingItem> shoppingItems;

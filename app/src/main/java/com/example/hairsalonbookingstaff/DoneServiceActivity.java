@@ -75,7 +75,7 @@ public class DoneServiceActivity extends AppCompatActivity implements IOnShoppin
                 JSONObject object = (JSONObject) args[0];
                 if (object != null) {
                     try {
-                        barberServices.add(new BarberServices(object.getString("name"), object.getLong("price")));
+                        barberServices.add(new BarberServices(object.getString("_id"), object.getString("name"), object.getLong("price")));
                         nameService.add(object.getString("name"));
                     } catch (JSONException e) {
                         e.printStackTrace();

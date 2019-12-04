@@ -2,8 +2,10 @@ package com.example.hairsalonbookingstaff.Adapter;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +16,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.hairsalonbookingstaff.Common.AdminCustomDialog;
+import com.example.hairsalonbookingstaff.AdminSalonActivity;
+import com.example.hairsalonbookingstaff.Common.AdminCustomStateDialog;
 import com.example.hairsalonbookingstaff.Common.MySocket;
 import com.example.hairsalonbookingstaff.Interface.IAdminDialogClickListener;
 import com.example.hairsalonbookingstaff.Model.City;
@@ -50,7 +53,7 @@ public class AdminStateAdapter extends RecyclerView.Adapter<AdminStateAdapter.My
         holder.img_delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mSocket.emit("deleteState", holder.txt_state_name.getText()).on("deleteState", new Emitter.Listener() {
+                mSocket.emit("deleteState", holder.txt_state_name.getText()).once("deleteState", new Emitter.Listener() {
                     @Override
                     public void call(final Object... args) {
                         Handler handler = new Handler(Looper.getMainLooper());
@@ -59,6 +62,7 @@ public class AdminStateAdapter extends RecyclerView.Adapter<AdminStateAdapter.My
                             public void run() {
                                 if (args[0] != null) {
                                     cityList.remove(position);
+                                    Log.d("AAA", "run: " + cityList.size());
                                     AdminStateAdapter.this.notifyItemRemoved(position);
                                     Toast.makeText(context, "Thành Công", Toast.LENGTH_SHORT).show();
                                 } else {
@@ -74,11 +78,19 @@ public class AdminStateAdapter extends RecyclerView.Adapter<AdminStateAdapter.My
         holder.img_update.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AdminCustomDialog dialog = AdminCustomDialog.getInstance();
+                AdminCustomStateDialog dialog = AdminCustomStateDialog.getInstance();
                 dialog.showLoginDialog("Update Địa Điểm", "Cập Nhật", "Đóng", context, true, false, AdminStateAdapter.this);
                 indexUpdate = position;
                 preState = cityList.get(position).getName();
                 dialog.edt_1.setText(cityList.get(position).getName());
+            }
+        });
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, AdminSalonActivity.class);
+                intent.putExtra("NAME_STATE", cityList.get(position).getName());
+                context.startActivity(intent);
             }
         });
 
@@ -91,7 +103,7 @@ public class AdminStateAdapter extends RecyclerView.Adapter<AdminStateAdapter.My
 
     @Override
     public void onClickPositiveButton(final DialogInterface dialogInterface, final String edt1) {
-        mSocket.emit("updateState", preState, edt1).on("updateState", new Emitter.Listener() {
+        mSocket.emit("updateState", preState, edt1).once("updateState", new Emitter.Listener() {
             @Override
             public void call(final Object... args) {
                 Handler handler = new Handler(Looper.getMainLooper());

@@ -93,22 +93,25 @@ public class MainActivity extends AppCompatActivity implements IDialogClickListe
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mSocket.emit("getAllSalon", "");
+    }
 
     private void initView() {
         mSocket.connect();
-        mSocket.emit("getAllSalon", "");
+//        mSocket.emit("getAllSalon", "");
         recycler_state = findViewById(R.id.recycler_state);
         recycler_state.setLayoutManager(new GridLayoutManager(this,2));
         recycler_state.addItemDecoration(new SpaceItemDecoration(8));
         recycler_state.setHasFixedSize(true);
         cityList = new ArrayList<>();
-
-
     }
 
     @Override
     public void onClickPositiveButton(final DialogInterface dialogInterface, String userName, String password) {
-        mSocket.emit("adminLogin", userName, password).on("adminLogin", new Emitter.Listener() {
+        mSocket.emit("adminLogin", userName, password).once("adminLogin", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
                 JSONObject object = (JSONObject) args[0];

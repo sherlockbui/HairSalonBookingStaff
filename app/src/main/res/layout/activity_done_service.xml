@@ -93,7 +93,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
                     android:layout_weight="1"
-                    android:src="@drawable/ic_add_black_24dp" />
+                    android:src="@drawable/ic_add_circle_black_24dp" />
 
             </LinearLayout>
 

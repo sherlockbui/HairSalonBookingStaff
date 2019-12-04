@@ -2,7 +2,8 @@ package com.example.hairsalonbookingstaff.Interface;
 
 import android.content.DialogInterface;
 
-public interface IAdminDialogClickListener {
-    void onClickPositiveButton(DialogInterface dialogInterface, String edt1);
+public interface IAdminDialogUpdateBarber {
+    void onClickPositiveButton(DialogInterface dialogInterface, String name, String username, String password);
+
     void onClickNegativeButton(DialogInterface dialogInterface);
 }

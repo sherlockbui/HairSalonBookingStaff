@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.hairsalonbookingstaff.Adapter.AdminStateAdapter;
-import com.example.hairsalonbookingstaff.Common.AdminCustomDialog;
+import com.example.hairsalonbookingstaff.Common.AdminCustomStateDialog;
 import com.example.hairsalonbookingstaff.Common.MySocket;
 import com.example.hairsalonbookingstaff.Common.SpaceItemDecoration;
 import com.example.hairsalonbookingstaff.Interface.IAdminDialogClickListener;
@@ -38,6 +38,7 @@ public class HomeFragment extends Fragment implements IAdminDialogClickListener 
     Button btn_add_state;
     private Socket mSocket = MySocket.getmSocket();
 
+
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_home, container, false);
         mSocket.connect();
@@ -52,7 +53,7 @@ public class HomeFragment extends Fragment implements IAdminDialogClickListener 
         btn_add_state.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AdminCustomDialog.getInstance().showLoginDialog("Thêm địa điểm", "Thêm", "Hủy", getContext(), true, false, HomeFragment.this);
+                AdminCustomStateDialog.getInstance().showLoginDialog("Thêm địa điểm", "Thêm", "Hủy", getContext(), true, false, HomeFragment.this);
             }
         });
         return root;
@@ -71,11 +72,11 @@ public class HomeFragment extends Fragment implements IAdminDialogClickListener 
                         try {
                             City city = new City(object.getString("name"));
                             areaNameList.add(city);
+                            recycler_state.setAdapter(myStateAdapter);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        recycler_state.setAdapter(myStateAdapter);
-                        myStateAdapter.notifyDataSetChanged();
+
                     }
                 });
             }
@@ -84,7 +85,7 @@ public class HomeFragment extends Fragment implements IAdminDialogClickListener 
 
     @Override
     public void onClickPositiveButton(final DialogInterface dialogInterface, String edt1) {
-        mSocket.emit("addState", edt1).on("addState", new Emitter.Listener() {
+        mSocket.emit("addState", edt1).once("addState", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
                 Handler handler = new Handler(Looper.getMainLooper());
@@ -96,7 +97,6 @@ public class HomeFragment extends Fragment implements IAdminDialogClickListener 
                             Toast.makeText(getContext(), "Thành Công", Toast.LENGTH_SHORT).show();
                             try {
                                 cityList.add(new City(object.getString("name")));
-                                myStateAdapter.notifyItemInserted(cityList.size());
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
